@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DiaFlux</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script type="module">
+      import { Application, Controller } from "https://unpkg.com/@hotwired/stimulus/dist/stimulus.js"
+      window.Stimulus = Application.start()
+
+      Stimulus.register("draggable", class extends Controller {
+        static targets = [ "dropzone" ]
+
+        drag(event) {
+          this.currentDraggedItem = event.target
+        }
+
+        dragenter(event) {
+          this.dropzoneTarget.classList.remove("bg-gray-200")
+          this.dropzoneTarget.classList.add("bg-green-200")
+        }
+
+        dragleave(event) {
+          this.dropzoneTarget.classList.add("bg-gray-200")
+          this.dropzoneTarget.classList.remove("bg-green-200")
+        }
+
+        dragover(event) {
+          event.preventDefault()
+        }
+
+        drop(event) {
+          event.preventDefault()
+          console.log(event);
+          const item = this.currentDraggedItem
+          item.classList.add("absolute")
+
+          item.style.top = `${event.layerY - (event.layerY % 16)}px`
+          item.style.left = `${event.layerX - (event.layerX % 16)}px`
+
+          this.dropzoneTarget.appendChild(item)
+          this.dragleave()
+        }
+      })
+    </script>
+  </head>
+  <body class="h-screen overflow-y-hidden">
+    <header class="p-4">
+      <h1 class="text-3xl text-gray-800 font-bold">DiaFlux</h1>
+    </header>
+    <main class="flex h-full" data-controller="draggable">
+      <aside class="bg-gray-100 w-3/12">
+        <h2 class="text-xl text-gray-700 font-semibold py-3 px-2">Blocks</h2>
+        <div class="space-y-3 p-3">
+          <div data-action="drag->draggable#drag" draggable="true" class="select-none bg-white shadow rounded-lg p-3 w-48 bg-green-100 text-green-900">
+            🟢 Start
+          </div>
+          <div data-action="drag->draggable#drag" draggable="true" class="select-none bg-white shadow rounded-lg p-3 w-48 bg-red-100 text-red-900">
+            🏁 End
+          </div>
+          <div data-action="drag->draggable#drag" draggable="true" class="select-none bg-white shadow rounded-lg p-3 w-48 bg-blue-100 text-blue-900">
+            🔨 Action
+          </div>
+          <div data-action="drag->draggable#drag" draggable="true" class="select-none bg-white shadow rounded-lg p-3 w-48 bg-yellow-100 text-yellow-900">
+            ↔️ Condition
+          </div>
+        </div>
+      </aside>
+      <section
+        style="background-image: url('graph-paper.svg')"
+        class="bg-gray-200 w-9/12 relative fill-gray-100"
+        data-draggable-target="dropzone"
+        data-action="dragenter->draggable#dragenter dragover->draggable#dragover dragleave->draggable#dragleave drop->draggable#drop">
+
+      </section>
+    </main>
+  </body>
+</html>
